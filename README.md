@@ -1,2 +1,2 @@
-- RPGƒcƒN[ƒ‹MZ—p‚Ìƒvƒ‰ƒOƒCƒ“‚ğŒöŠJ‚µ‚Ä‚¢‚Ü‚·B
-- [Nazuna Software](https://ci-en.dlsite.com/creator/16657) R18’ˆÓ
+- åˆ¶ä½œä¸­ã«å‰¯æ¬¡çš„ã«ã§ããŸRPGãƒ„ã‚¯ãƒ¼ãƒ«MZç”¨ã®ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã‚’å…¬é–‹ã—ã¦ã„ã¾ã™ã€‚
+- ä½œè€…ã®Ci-enã¯ã“ã¡ã‚‰ â†’ [Nazuna Software](https://ci-en.dlsite.com/creator/16657) (R18æ³¨æ„)
