@@ -1,0 +1,2 @@
+- RPGツクールMZ用のプラグインを公開しています。
+- [Nazuna Software](https://ci-en.dlsite.com/creator/16657) R18注意
