@@ -1,6 +1,6 @@
 /*:
  * @target MZ
- * @plugindesc ピクチャのフェード切り替えを実現するプラグイン
+ * @plugindesc v1.0.1 ピクチャのフェード切り替えを実現するプラグイン
  * @author なｚな
  * @help
  * このプラグインを使用すると、表示中のピクチャを別のピクチャに
@@ -28,20 +28,6 @@
  * @desc 切り替え先の画像ファイルパス
  * @type file
  * @dir img/pictures
- * 
- * @arg xPosition
- * @text X座標
- * @desc ピクチャの表示X座標
- * @type number
- * @min 0
- * @default 0
- * 
- * @arg yPosition
- * @text Y座標
- * @desc ピクチャの表示Y座標
- * @type number
- * @min 0
- * @default 0
  * 
  * @arg fadeDuration
  * @text フェード時間
@@ -84,10 +70,13 @@
         const targetPictureId = Number(args.targetPictureId);
         const dummyPictureId = Number(args.dummyPictureId);
         const newPicturePath = args.newPicturePath;
-        const xPosition = Number(args.xPosition);
-        const yPosition = Number(args.yPosition);
         const fadeDuration = Number(args.fadeDuration);
         const waitForCompletion = args.waitForCompletion === "true";
+
+        // 元のピクチャのX座標とY座標を取得
+        const picture = $gameScreen.picture(targetPictureId);
+        const xPosition = picture ? picture.x() : 0;
+        const yPosition = picture ? picture.y() : 0;
 
         // 前面に新しいピクチャを表示（透明度0で開始）
         $gameScreen.showPicture(dummyPictureId, newPicturePath, 0, xPosition, yPosition, 100, 100, 0, 0);
