@@ -1,6 +1,6 @@
 /*:
  * @target MZ
- * @plugindesc v1.0.1 ピクチャのフェード切り替えを実現するプラグイン
+ * @plugindesc v1.0.2 ピクチャのフェード切り替えを実現するプラグイン
  * @author なｚな
  * @help
  * このプラグインを使用すると、表示中のピクチャを別のピクチャに
@@ -73,10 +73,11 @@
         const fadeDuration = Number(args.fadeDuration);
         const waitForCompletion = args.waitForCompletion === "true";
 
-        // 元のピクチャのX座標とY座標を取得
+        // 元のピクチャのX座標、Y座標、およびピクチャのパスを取得
         const picture = $gameScreen.picture(targetPictureId);
         const xPosition = picture ? picture.x() : 0;
         const yPosition = picture ? picture.y() : 0;
+        const oldPicturePath = picture ? picture._name : "";
 
         // 前面に新しいピクチャを表示（透明度0で開始）
         $gameScreen.showPicture(dummyPictureId, newPicturePath, 0, xPosition, yPosition, 100, 100, 0, 0);
@@ -91,8 +92,12 @@
 
         // フェードイン完了後にピクチャを切り替える
         setTimeout(() => {
-            // 切り替え対象のピクチャを新しいピクチャに切り替え
-            $gameScreen.showPicture(targetPictureId, newPicturePath, 0, xPosition, yPosition, 100, 100, 255, 0);
+            // 競合を防ぐため、切り替え対象のピクチャがまだ同じか確認
+            const currentPicture = $gameScreen.picture(targetPictureId);
+            if (currentPicture && currentPicture._name === oldPicturePath) {
+                // 切り替え対象のピクチャを新しいピクチャに切り替え
+                $gameScreen.showPicture(targetPictureId, newPicturePath, 0, xPosition, yPosition, 100, 100, 255, 0);
+            }
 
             // ダミーピクチャを消去
             $gameScreen.erasePicture(dummyPictureId);
