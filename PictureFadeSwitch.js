@@ -1,6 +1,6 @@
 /*:
  * @target MZ
- * @plugindesc v1.0.2 ピクチャのフェード切り替えを実現するプラグイン
+ * @plugindesc v1.0.3 ピクチャのフェード切り替えを実現するプラグイン
  * @author なｚな
  * @help
  * このプラグインを使用すると、表示中のピクチャを別のピクチャに
@@ -73,17 +73,19 @@
         const fadeDuration = Number(args.fadeDuration);
         const waitForCompletion = args.waitForCompletion === "true";
 
-        // 元のピクチャのX座標、Y座標、およびピクチャのパスを取得
+        // 元のピクチャの情報を取得
         const picture = $gameScreen.picture(targetPictureId);
         const xPosition = picture ? picture.x() : 0;
         const yPosition = picture ? picture.y() : 0;
+        const scaleX = picture ? picture.scaleX() : 100;
+        const scaleY = picture ? picture.scaleY() : 100;
         const oldPicturePath = picture ? picture._name : "";
 
         // 前面に新しいピクチャを表示（透明度0で開始）
-        $gameScreen.showPicture(dummyPictureId, newPicturePath, 0, xPosition, yPosition, 100, 100, 0, 0);
+        $gameScreen.showPicture(dummyPictureId, newPicturePath, 0, xPosition, yPosition, scaleX, scaleY, 0, 0);
 
         // ピクチャの移動処理 (フェードイン)
-        $gameScreen.movePicture(dummyPictureId, 0, xPosition, yPosition, 100, 100, 255, 0, fadeDuration);
+        $gameScreen.movePicture(dummyPictureId, 0, xPosition, yPosition, scaleX, scaleY, 255, 0, fadeDuration);
 
         if (waitForCompletion) {
             // ウェイトを行う場合
@@ -96,7 +98,7 @@
             const currentPicture = $gameScreen.picture(targetPictureId);
             if (currentPicture && currentPicture._name === oldPicturePath) {
                 // 切り替え対象のピクチャを新しいピクチャに切り替え
-                $gameScreen.showPicture(targetPictureId, newPicturePath, 0, xPosition, yPosition, 100, 100, 255, 0);
+                $gameScreen.showPicture(targetPictureId, newPicturePath, 0, xPosition, yPosition, scaleX, scaleY, 255, 0);
             }
 
             // ダミーピクチャを消去
