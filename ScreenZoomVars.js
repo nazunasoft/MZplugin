@@ -1,7 +1,7 @@
 /*:
  * @target MZ
  * @plugindesc [v1.0.2] 変数(X,Y,拡大率％)で画面ズームを実行/解除
- * @author Helen
+ * @author なｚな
  *
  * @param varX
  * @text X座標 変数番号
