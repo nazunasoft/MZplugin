@@ -4,7 +4,7 @@
 /*:
  * @target MZ
  * @plugindesc 敵から逃げた後やプラグインコマンドでの呼び出しで、主人公を一定時間無敵（イベント接触無効）にし点滅させます。
- * @author Antigravity
+ * @author なｚな
  *
  * @param InvincibleSeconds
  * @text 無敵時間（秒）
