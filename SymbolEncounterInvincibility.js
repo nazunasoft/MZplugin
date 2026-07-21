@@ -33,6 +33,12 @@
  * @type boolean
  * @default true
  *
+ * @param PassThroughEvents
+ * @text 無効化対象イベントのすり抜け
+ * @desc 無敵中、接触が無効化されているイベントをすり抜けられるようにします（敵との衝突をなくします）。
+ * @type boolean
+ * @default true
+ *
  * @param BlinkInterval
  * @text 点滅間隔（フレーム）
  * @desc 無敵中のキャラクターの点滅速度（フレーム数）。1秒＝60フレーム。
@@ -86,12 +92,13 @@
 
     const pluginName = "SymbolEncounterInvincibility";
     const parameters = PluginManager.parameters(pluginName);
-    
+
     // パラメータの取得
     const invincibleSeconds = Number(parameters['InvincibleSeconds'] || 3.0);
     const autoTriggerOnEscape = parameters['AutoTriggerOnEscape'] !== "false";
     const blockEventTouch = parameters['BlockEventTouch'] !== "false";
     const blockPlayerTouch = parameters['BlockPlayerTouch'] !== "false";
+    const passThroughEvents = parameters['PassThroughEvents'] !== "false";
     const blinkInterval = Number(parameters['BlinkInterval'] || 4);
     const transparentOpacity = Number(parameters['TransparentOpacity'] || 128);
 
@@ -111,7 +118,7 @@
     // BattleManager
     //=============================================================================
     const _BattleManager_endBattle = BattleManager.endBattle;
-    BattleManager.endBattle = function(result) {
+    BattleManager.endBattle = function (result) {
         // result === 1 は「逃走」
         if (result === 1 && autoTriggerOnEscape) {
             $gamePlayer.startInvincibility(invincibleSeconds * 60);
@@ -123,29 +130,46 @@
     // Game_Player
     //=============================================================================
     const _Game_Player_initMembers = Game_Player.prototype.initMembers;
-    Game_Player.prototype.initMembers = function() {
+    Game_Player.prototype.initMembers = function () {
         _Game_Player_initMembers.call(this);
         this._invincibilityFrames = 0;
     };
 
-    Game_Player.prototype.startInvincibility = function(frames) {
+    Game_Player.prototype.startInvincibility = function (frames) {
         this._invincibilityFrames = Math.floor(frames);
     };
 
-    Game_Player.prototype.clearInvincibility = function() {
+    Game_Player.prototype.clearInvincibility = function () {
         this._invincibilityFrames = 0;
     };
 
-    Game_Player.prototype.isInvincible = function() {
+    Game_Player.prototype.isInvincible = function () {
         return this._invincibilityFrames > 0;
     };
 
     const _Game_Player_update = Game_Player.prototype.update;
-    Game_Player.prototype.update = function(sceneActive) {
+    Game_Player.prototype.update = function (sceneActive) {
         _Game_Player_update.call(this, sceneActive);
         if (sceneActive && this._invincibilityFrames > 0) {
             this._invincibilityFrames--;
         }
+    };
+
+    const _Game_Player_isCollidedWithEvents = Game_Player.prototype.isCollidedWithEvents;
+    Game_Player.prototype.isCollidedWithEvents = function(x, y) {
+        if (this.isInvincible() && passThroughEvents) {
+            const events = $gameMap.eventsXyNt(x, y);
+            return events.some(event => {
+                if (!event.isNormalPriority()) return false;
+                
+                // 接触が無効化されているトリガーのイベントなら衝突しない
+                if (blockPlayerTouch && event._trigger === 1) return false;
+                if (blockEventTouch && event._trigger === 2) return false;
+                
+                return true;
+            });
+        }
+        return _Game_Player_isCollidedWithEvents.call(this, x, y);
     };
 
     //=============================================================================
@@ -153,7 +177,7 @@
     //=============================================================================
     // 接触イベントの起動を防ぐ
     const _Game_Event_start = Game_Event.prototype.start;
-    Game_Event.prototype.start = function() {
+    Game_Event.prototype.start = function () {
         if ($gamePlayer.isInvincible()) {
             if (blockPlayerTouch && this._trigger === 1) return; // プレイヤーからの接触
             if (blockEventTouch && this._trigger === 2) return;  // イベントからの接触
@@ -161,14 +185,24 @@
         _Game_Event_start.call(this);
     };
 
+    // 敵がプレイヤーをすり抜けられるようにする
+    const _Game_Event_isCollidedWithPlayerCharacters = Game_Event.prototype.isCollidedWithPlayerCharacters;
+    Game_Event.prototype.isCollidedWithPlayerCharacters = function(x, y) {
+        if ($gamePlayer.isInvincible() && passThroughEvents) {
+            if (blockPlayerTouch && this._trigger === 1) return false;
+            if (blockEventTouch && this._trigger === 2) return false;
+        }
+        return _Game_Event_isCollidedWithPlayerCharacters.call(this, x, y);
+    };
+
     //=============================================================================
     // Sprite_Character
     //=============================================================================
     // 無敵状態中の点滅処理
     const _Sprite_Character_updateOther = Sprite_Character.prototype.updateOther;
-    Sprite_Character.prototype.updateOther = function() {
+    Sprite_Character.prototype.updateOther = function () {
         _Sprite_Character_updateOther.call(this);
-        
+
         // 主人公キャラとフォロワーに点滅エフェクトを適用
         if (this._character === $gamePlayer || (this._character && this._character instanceof Game_Follower)) {
             if ($gamePlayer.isInvincible()) {
